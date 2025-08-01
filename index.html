@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map with Navigation Buttons</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* Map container */
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 80px;
+            width: 100%;
+        }
+        
+        .top-left-button {
+            position: absolute;
+            top: 70px;
+            left: 80px;
+            z-index: 1000;
+        }
+        
+        .top-left-button button {
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            background-color: rgb(0, 0, 0);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        
+        .top-left-button img {
+            width: 30px;
+            height: 30px;
+            transition: transform 0.2s;
+            filter: invert(1);
+        }
+        
+        .top-left-button img:hover {
+            transform: scale(1.1);
+        }
+
+        /* Search Panel */
+        .search-panel {
+            position: absolute;
+            top: 130px;
+            left: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            width: 300px;
+            display: none;
+        }
+        
+        .search-panel input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .search-panel button {
+            background-color: #000;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        /* Settings Menu */
+        .settings-menu {
+            position: absolute;
+            bottom: 90px;
+            right: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            width: 200px;
+            display: none;
+            overflow: hidden;
+        }
+        
+        .settings-menu button {
+            display: block;
+            width: 100%;
+            padding: 12px 15px;
+            text-align: left;
+            background: none;
+            border: none;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .settings-menu button:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .settings-menu button:last-child {
+            border-bottom: none;
+        }
+        
+        /* Emergency Contact Panel */
+        .emergency-panel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            z-index: 1000;
+            width: 280px;
+            display: none;
+            text-align: center;
+        }
+        
+        .emergency-panel h3 {
+            margin-top: 0;
+            color: #d9534f;
+        }
+        
+        .emergency-number {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 15px 0;
+            color: #333;
+        }
+        
+        .emergency-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        .emergency-buttons button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+        
+        .call-now {
+            background-color: #d9534f;
+            color: white;
+        }
+        
+        .call-now:hover {
+            background-color: #c9302c;
+        }
+        
+        .cancel-emergency {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        
+        .cancel-emergency:hover {
+            background-color: #e0e0e0;
+        }
+        
+        /* Bottom navigation */
+        .div-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgba(255,255,255,0.9);
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            padding: 0;
+            z-index: 1000;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .div-nav button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            height: 100%;
+            transition: all 0.2s;
+        }
+        
+        .div-nav button:hover {
+            background-color: rgba(0,0,0,0.05);
+        }
+        
+        /* ABE Button - Larger */
+        .abe-button {
+            flex: 2;
+        }
+        
+        .abe-button img {
+            height: 60px;
+            width: auto;
+            max-width: 100%;
+        }
+        
+        /* Emergency Button - Smaller but prominent */
+        .emergency-button {
+            flex: 1;
+        }
+        
+        .emergency-button img {
+            height: 50px;
+            width: auto;
+            max-width: 80%;
+        }
+        
+        /* Settings Button - Larger */
+        .settings-button {
+            flex: 2;
+            position: relative;
+        }
+        
+        .settings-button img {
+            height: 60px;
+            width: auto;
+            max-width: 100%;
+        }
+        
+        /* Borders between buttons */
+        .div-nav button:not(:last-child) {
+            border-right: 1px solid #ddd;
+        }
+    </style>
+    <!-- Leaflet CSS (OpenStreetMap) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+    <!-- Map Container -->
+    <div id="map"></div>
+
+    <!-- Search Button -->
+    <div class="top-left-button">
+        <button type="button" id="searchButton" aria-label="Search button">
+            <img src="1.webp" alt="Search icon">
+        </button>
+    </div>
+
+    <!-- Search Panel -->
+    <div class="search-panel" id="searchPanel">
+        <input type="text" id="currentLocation" placeholder="Your current location">
+        <input type="text" id="destination" placeholder="Your destination">
+        <button id="searchSubmit">Search Route</button>
+    </div>
+
+    <!-- Settings Menu -->
+    <div class="settings-menu" id="settingsMenu">
+        <button id="accountSecurityBtn">
+            <img src="security-icon.png" alt="" width="20" style="margin-right: 10px;">
+            Account and Security
+        </button>
+        <button id="notificationBtn">
+            <img src="notification-icon.png" alt="" width="20" style="margin-right: 10px;">
+            Notification
+        </button>
+        <button id="faqBtn">
+            <img src="faq-icon.png" alt="" width="20" style="margin-right: 10px;">
+            FAQ
+        </button>
+    </div>
+
+    <!-- Emergency Contact Panel -->
+    <div class="emergency-panel" id="emergencyPanel">
+        <h3>Emergency Contact</h3>
+        <div class="emergency-number">0915 881 1986</div>
+        <div class="emergency-buttons">
+            <button class="cancel-emergency" id="cancelEmergency">Cancel</button>
+            <button class="call-now" id="callNow">Call Now</button>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="div-nav">
+        <button class="abe-button">
+            <img src="3.jpg" alt="ABE button">
+        </button>
+        <button class="emergency-button" id="emergencyButton">
+            <img src="2.avif" alt="Emergency call">
+        </button>
+        <button class="settings-button" id="settingsButton">
+            <img src="4.webp" alt="Settings">
+        </button>
+    </div>
+
+    <!-- Leaflet JS (OpenStreetMap) -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Initialize the map
+        const map = L.map('map').setView([14.5995, 120.9842], 15);
+        
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+        
+        // Add a marker (optional)
+        L.marker([14.5995, 120.9842]).addTo(map)
+            .bindPopup('Sample Location')
+            .openPopup();
+        
+        // Search Panel Functionality
+        const searchButton = document.getElementById('searchButton');
+        const searchPanel = document.getElementById('searchPanel');
+        const currentLocation = document.getElementById('currentLocation');
+        const destination = document.getElementById('destination');
+        const searchSubmit = document.getElementById('searchSubmit');
+        
+        // Settings Menu Functionality
+        const settingsButton = document.getElementById('settingsButton');
+        const settingsMenu = document.getElementById('settingsMenu');
+        const accountSecurityBtn = document.getElementById('accountSecurityBtn');
+        const notificationBtn = document.getElementById('notificationBtn');
+        const faqBtn = document.getElementById('faqBtn');
+        
+        // Emergency Panel Functionality
+        const emergencyButton = document.getElementById('emergencyButton');
+        const emergencyPanel = document.getElementById('emergencyPanel');
+        const callNow = document.getElementById('callNow');
+        const cancelEmergency = document.getElementById('cancelEmergency');
+        
+        // Toggle search panel visibility
+        searchButton.addEventListener('click', function() {
+            if (searchPanel.style.display === 'block') {
+                searchPanel.style.display = 'none';
+            } else {
+                searchPanel.style.display = 'block';
+                // Close other panels if open
+                settingsMenu.style.display = 'none';
+                emergencyPanel.style.display = 'none';
+                // Try to get current location
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        currentLocation.value = "Current Location";
+                        // Reverse geocode to get address (simplified)
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.address) {
+                                    const address = `${data.address.road || ''} ${data.address.house_number || ''}, ${data.address.city || data.address.town || ''}`;
+                                    currentLocation.value = address.trim();
+                                }
+                            });
+                    }, function(error) {
+                        console.error("Error getting location: ", error);
+                        currentLocation.value = "Location not available";
+                    });
+                } else {
+                    currentLocation.value = "Geolocation not supported";
+                }
+            }
+        });
+        
+        // Toggle settings menu visibility
+        settingsButton.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (settingsMenu.style.display === 'block') {
+                settingsMenu.style.display = 'none';
+            } else {
+                settingsMenu.style.display = 'block';
+                // Close other panels if open
+                searchPanel.style.display = 'none';
+                emergencyPanel.style.display = 'none';
+            }
+        });
+        
+        // Toggle emergency panel visibility
+        emergencyButton.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (emergencyPanel.style.display === 'block') {
+                emergencyPanel.style.display = 'none';
+            } else {
+                emergencyPanel.style.display = 'block';
+                // Close other panels if open
+                searchPanel.style.display = 'none';
+                settingsMenu.style.display = 'none';
+            }
+        });
+        
+        // Call Now button functionality
+        callNow.addEventListener('click', function() {
+            // In a real app, this would initiate a phone call
+            alert('Calling emergency number: 0915 881 1986');
+            // For mobile devices, you could use: window.location.href = 'tel:09158811986';
+            emergencyPanel.style.display = 'none';
+        });
+        
+        // Cancel button functionality
+        cancelEmergency.addEventListener('click', function() {
+            emergencyPanel.style.display = 'none';
+        });
+        
+        // Settings menu buttons functionality
+        accountSecurityBtn.addEventListener('click', function() {
+            alert('Account and Security clicked');
+            settingsMenu.style.display = 'none';
+        });
+        
+        notificationBtn.addEventListener('click', function() {
+            alert('Notification settings clicked');
+            settingsMenu.style.display = 'none';
+        });
+        
+        faqBtn.addEventListener('click', function() {
+            alert('FAQ clicked');
+            settingsMenu.style.display = 'none';
+        });
+        
+        // Handle search submission
+        searchSubmit.addEventListener('click', function() {
+            const dest = destination.value;
+            if (dest) {
+                alert(`Searching route to: ${dest}`);
+                // Here you would typically implement routing logic
+                // This would involve geocoding the destination and showing a route
+            } else {
+                alert('Please enter a destination');
+            }
+        });
+        
+        // Close panels when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!searchPanel.contains(event.target) && event.target !== searchButton) {
+                searchPanel.style.display = 'none';
+            }
+            if (!settingsMenu.contains(event.target) && event.target !== settingsButton) {
+                settingsMenu.style.display = 'none';
+            }
+            if (!emergencyPanel.contains(event.target) && event.target !== emergencyButton) {
+                emergencyPanel.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
